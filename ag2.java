@@ -5,7 +5,10 @@
 //
 package Air;
 
+import java.sql.*;
+import java.sql.Date;
 import java.io.*;
+
 import java.util.*;
 import java.text.*;
 
@@ -100,54 +103,119 @@ class CPassenger implements java.io.Serializable
   // Returns true if the passenger was found and loaded
   //
   {
+
     boolean        found = false;  // indicates if passenger already exists
-    File          fileExists = new File ("passenger.dat");
+
+
+
+    //File          fileExists = new File ("passenger.dat");
                       // used to test if file exists
-    CPassenger      tempPassenger;  // temporary object used to determine if
+    //CPassenger      tempPassenger;  // temporary object used to determine if
                       // object already exists
-    boolean        EOF = false;
+    //boolean        EOF = false;
 
-    if (!fileExists.exists ())
-      return false;
+   // if (!fileExists.exists ())
+     // return false;
 
-    try
-    {
-      ObjectInputStream in = new ObjectInputStream (new FileInputStream 
-          ("passenger.dat"));
+    //try
+    //{
+      //ObjectInputStream in = new ObjectInputStream (new FileInputStream 
+        //  ("passenger.dat"));
 
-      while (!EOF)
-      {
-        try
-        {
+      //while (!EOF)
+      //{
+        //try
+        //{
           //
           // determine if the passenger object already exists
           //
-          tempPassenger = (CPassenger)in.readObject ();
+          //tempPassenger = (CPassenger)in.readObject ();
 
           //
       // check if there is a match with searchID
           //
-          if (tempPassenger.getPassengerID ().toLowerCase ().compareTo
-              (searchID.toLowerCase ()) == 0)
-            {
-              found = true;
-              this.Copy (tempPassenger);
-              break;
-            }
-        } // try
-        catch (EOFException e)
-        {
-          EOF = true;
-        }
 
-      } // while (!EOF)
 
-      in.close ();
-    } // try
-    catch (Exception e)
-    {
-      e.printStackTrace (System.out);
-    }
+    //...................Change begins............................
+     
+     try {  
+          Class.forName("com.mysql.jdbc.Driver");     // driver    
+          //Class.forName("org.gjt.mm.mysql.Driver");  
+         System.out.println("Success loading Mysql Driver!");  
+        }  
+        catch (Exception e) {  
+          System.out.print("Error loading Mysql Driver!");  
+          e.printStackTrace();  
+        }  
+  try {  
+      Connection connect = DriverManager.getConnection( "jdbc:mysql://localhost:3306/air","root","111111");  
+      //Statement steamed = connect.createStatement();
+      
+      String queryCheck = "SELECT * from air WHERE passengerID =?" ;
+      PreparedStatement st = connect.prepareStatement(queryCheck);
+      st.setString(1, searchID);
+      ResultSet rs = st.executeQuery(); // execute the query, and get a java resultset
+      // if this ID already exists, we quit
+      if(rs.absolute(1)) {
+          //connect.close();
+
+
+    	 found= true;
+
+          
+                
+          
+      }
+      
+
+      
+
+  
+  // } catch (ClassNotFoundException e) {  
+    // TODO Auto-generated catch block  
+   // System.out.println("An error has occurred:"+e.toString());  
+  //  e.printStackTrace();  
+      
+           
+
+  
+  // } catch (ClassNotFoundException e) {  
+    // TODO Auto-generated catch block  
+   // System.out.println("An error has occurred:"+e.toString());  
+  //  e.printStackTrace();  
+   }catch(SQLException e)  
+   {  
+	//   PrintStream out = System.out;
+       //out.println( "exception" );
+   }
+
+//.....................change ends............
+
+
+
+
+
+
+
+
+
+
+
+
+        //} // try
+        //catch (EOFException e)
+        //{
+          //EOF = true;
+        //}
+
+      //} // while (!EOF)
+
+      //in.close ();
+    //} // try
+    //catch (Exception e)
+    //{
+      //e.printStackTrace (System.out);
+    //}
 
     return found;
 
@@ -199,108 +267,232 @@ class CPassenger implements java.io.Serializable
       System.out.print ("Enter the COUNTRY where the passenger lives: ");
       country = AirGourmetUtilities.readString ();
     }
+
+
+
+
+
+//...................................Added new SQL functionality part........................
+
+	try {  
+		  Class.forName("com.mysql.jdbc.Driver");     // driver    
+		  //Class.forName("org.gjt.mm.mysql.Driver");  
+		 System.out.println("Success loading Mysql Driver!");  
+		}  
+		catch (Exception e) {  
+		  System.out.print("Error loading Mysql Driver!");  
+		  e.printStackTrace();  
+		}  
+	  try {  
+	      Connection connect = DriverManager.getConnection( "jdbc:mysql://localhost:3306/air","root","111111");  
+	       
+		 
+	       PreparedStatement Statement=connect.prepareStatement("INSERT INTO Passengers (passengerID,firstName,middleInit,lastName,suffix,address1,address2,city,state,postalCode,country) VALUES(?,?,?,?,?,?,?,?,?,?,?)");  
+
+	       
+	 
+		    Statement.setString(1,passengerID);
+		    Statement.setString(2,firstName);
+		    Statement.setString(3,String.valueOf(middleInit));
+	 	    Statement.setString(4,lastName);
+		    Statement.setString(5,suffix);
+		    Statement.setString(6,address1);
+		    Statement.setString(7,address2);
+		    Statement.setString(8,city);
+		    Statement.setString(9,state);
+		    Statement.setString(10,postalCode);
+		    Statement.setString(11,country);			    
+
+		    Statement.executeUpdate(); 
+		    //connect.commit();
+	   
+	  // } catch (ClassNotFoundException e) {  
+	    // TODO Auto-generated catch block  
+	   // System.out.println("An error has occurred:"+e.toString());  
+	  //  e.printStackTrace();  
+	   }catch(SQLException e)  
+	   {  
+	   }
+
+
+
+
+
+//........................................Added new SQL change ends here...............................
+
+
+
+
+
   } // getDescription
 
 
-  public void insert ()
+  /*public void insert ()
   //
   // insert inserts a passenger object in the proper place
   //
   {
-    boolean        found = false;  // indicates if object insertion point found
-    File          fileExists = new File ("passenger.dat");
+    
+	boolean        found = false;  // indicates if object insertion point found
+
+
+
+
+    
+
+    //File          fileExists = new File ("passenger.dat");
                       // used to test if file exists
-    CPassenger      tempPassenger;  // temporary object used for file copying
-    boolean        EOF = false;
+    //CPassenger      tempPassenger;  // temporary object used for file copying
+    //boolean        EOF = false;
 
-    try
-    {
-      ObjectOutputStream out = new ObjectOutputStream (new FileOutputStream
-          ("tempP.dat"));
+    //try
+    //{
+      //ObjectOutputStream out = new ObjectOutputStream (new FileOutputStream
+         // ("tempP.dat"));
 
-      if (fileExists.exists ())
-      {
-        ObjectInputStream in = new ObjectInputStream (new FileInputStream
-            ("passenger.dat"));
+     // if (fileExists.exists ())
+      //{
+        //ObjectInputStream in = new ObjectInputStream (new FileInputStream
+          //  ("passenger.dat"));
 
-        while (!EOF)
-        {
-          try
+        //while (!EOF)
+        //{
+
+   //       try
           {
             // read/write temporary object from the passenger file
-            tempPassenger = (CPassenger)in.readObject ();
-            out.writeObject (tempPassenger);
-          }
-          catch (EOFException e)
-          {
-            EOF = true;
-          }
+     //       tempPassenger = (CPassenger)in.readObject ();
+       //     out.writeObject (tempPassenger);
+         // }
+          //catch (EOFException e)
+          //{
+            //EOF = true;
+          //}
 
-        } // while (!EOF)
+     //   } // while (!EOF)
 
-        in.close ();
-      } // if (fileExists.exists ())
-      else
-        out.writeObject (this);
+       // in.close ();
+      //} // if (fileExists.exists ())
+      //else
+        //out.writeObject (this);
 
-      out.close ();
-    } // try
+  //    out.close ();
+    //} // try
 
-    catch (Exception e)
-    {
-      e.printStackTrace (System.out);
-    }
+    //catch (Exception e)
+    //{
+      //e.printStackTrace (System.out);
+    //}
 
-    EOF = false;
+    //EOF = false;
 
-    try
-    {
-      ObjectInputStream in = new ObjectInputStream (new FileInputStream ("tempP.dat"));
-      ObjectOutputStream out = new ObjectOutputStream (new FileOutputStream
-          ("passenger.dat"));
+    //try
+    //{
+      //ObjectInputStream in = new ObjectInputStream (new FileInputStream ("tempP.dat"));
+      //ObjectOutputStream out = new ObjectOutputStream (new FileOutputStream
+        //  ("passenger.dat"));
 
-      while (!EOF)
-      {
-        try
-        {
-          tempPassenger = (CPassenger)in.readObject ();
+      //while (!EOF)
+      //{
+        //try
+      //  {
+        //  tempPassenger = (CPassenger)in.readObject ();
 
           //
           // check if there is already a passenger with the current ID.
           // If one exists, it means a change of address so write the new
           // passenger object into the file
           //
-          if (passengerID.compareTo (tempPassenger.getPassengerID ().
-              toLowerCase ()) == 0)
-          {
-            out.writeObject (this);
-            found = true;
-          }
-          else
-            out.writeObject (tempPassenger);
+          //if (passengerID.compareTo (tempPassenger.getPassengerID ().
+            //  toLowerCase ()) == 0)
+          //{
+            //out.writeObject (this);
+            //found = true;
+          //}
+          //else
+            //out.writeObject (tempPassenger);
 
-        } // try
+//        } // try
 
-        catch (EOFException e)
-        {
-          if (!found)
-            out.writeObject (this);
+        //catch (EOFException e)
+        //{
+          //if (!found)
+            //out.writeObject (this);
 
-          EOF = true;
-        }
+          //EOF = true;
+        //}
 
-      } // while (!EOF)
+      //} // while (!EOF)
 
-      in.close ();
-      out.close ();
-    } // try
+      //in.close ();
+      //out.close ();
+    //} // try
 
-    catch (Exception e)
-    {
-      e.printStackTrace (System.out);
-    }
+    //catch (Exception e)
+    //{
+    //  e.printStackTrace (System.out);
+  //  }
 
-  } // insert
+
+    //...................Change begins............................
+     
+     try {  
+          Class.forName("com.mysql.jdbc.Driver");     // driver    
+          //Class.forName("org.gjt.mm.mysql.Driver");  
+         System.out.println("Success loading Mysql Driver!");  
+        }  
+        catch (Exception e) {  
+          System.out.print("Error loading Mysql Driver!");  
+          e.printStackTrace();  
+        }  
+  try {  
+      Connection connect = DriverManager.getConnection( "jdbc:mysql://localhost:3306/air","root","111111");  
+      //Statement steamed = connect.createStatement();
+      
+      String queryCheck = "SELECT * from Passengers WHERE passengerID =?" ;
+      PreparedStatement st = connect.prepareStatement(queryCheck);
+      st.setString(1, searchID);
+      ResultSet rs = st.executeQuery(); // execute the query, and get a java resultset
+      // if this ID already exists, we quit
+      if(rs.absolute(1)) {
+          //connect.close();
+
+
+    	 found= true;
+
+          
+                
+          
+      }
+      
+
+      
+
+  
+  // } catch (ClassNotFoundException e) {  
+    // TODO Auto-generated catch block  
+   // System.out.println("An error has occurred:"+e.toString());  
+  //  e.printStackTrace();  
+      
+           
+
+  
+  // } catch (ClassNotFoundException e) {  
+    // TODO Auto-generated catch block  
+   // System.out.println("An error has occurred:"+e.toString());  
+  //  e.printStackTrace();  
+   }catch(SQLException e)  
+   {  
+	 //  PrintStream out = System.out;
+       //out.println( "exception" );
+   }
+
+//.....................change ends............
+
+
+
+
+  } // insert       */
 
   //
   // private method
@@ -316,54 +508,78 @@ class CPassenger implements java.io.Serializable
     char          ch;    // holds user response to Y/N question
     boolean        found = false;  // indicates if passenger already exists
     String          searchID;  // the passengerID for which to search
-    File          fileExists = new File ("passenger.dat");
-                      // used to test if file exists
-    CPassenger      tempPassenger;  // temporary object used to determine if
-                      // object already exists
-    boolean        EOF = false;
 
-    if (!fileExists.exists ())
-      return false;
+
+
+
+
+   // File          fileExists = new File ("passenger.dat");
+                      // used to test if file exists
+   // CPassenger      tempPassenger;  // temporary object used to determine if
+                      // object already exists
+    //boolean        EOF = false;
+
+
+    //if (!fileExists.exists ())  // !!!!!!!!! CHANGE SQL
+      //return false;
+
+
+
 
     searchID = passengerID;
 
-    try
-    {
-      ObjectInputStream in = new ObjectInputStream (new FileInputStream
-          ("passenger.dat"));
 
-      while (!EOF)
-      {
-        try
-        {
+
+
+
+  //  try
+    //{
+      //ObjectInputStream in = new ObjectInputStream (new FileInputStream
+        //  ("passenger.dat"));
+
+      //while (!EOF)
+      //{
+        //try
+        //{
           //
           // determine if the passenger object already exists
           //
-          tempPassenger = (CPassenger)in.readObject ();
+          //tempPassenger = (CPassenger)in.readObject ();
 
-          if (tempPassenger.getPassengerID ().toLowerCase ().compareTo
-              (searchID.toLowerCase ()) == 0)
-          {
-            found = true;
-            this.Copy (tempPassenger);
-            break;
-          }
-        } // try
+//          if (tempPassenger.getPassengerID ().toLowerCase ().compareTo
+  //            (searchID.toLowerCase ()) == 0)
+    //      {
 
-        catch (EOFException e)
-        {
-          EOF = true;
-        }
 
-      } // while
+          //  found = true;
+            //this.Copy (tempPassenger);
+            //break;
 
-      in.close ();
-    } // try
 
-    catch (Exception e)
-    {
-      e.printStackTrace (System.out);
-    }
+
+
+
+
+
+
+
+          //}
+        //} // try
+
+        //catch (EOFException e)
+        //{
+          //EOF = true;
+        //}
+
+      //} // while
+
+      //in.close ();
+    //} // try
+
+    //catch (Exception e)
+    //{
+      //e.printStackTrace (System.out);
+    //}
 
     //
     // A record was found that has the same passengerID.
@@ -371,11 +587,85 @@ class CPassenger implements java.io.Serializable
     // reservation (if the user answers N, then a new name/address may be
     // given to this passengerID)
     //
+
+
+
+
+
+
+
+    //...................Change begins............................
+     
+     try {  
+          Class.forName("com.mysql.jdbc.Driver");     // driver    
+          //Class.forName("org.gjt.mm.mysql.Driver");  
+         System.out.println("Success loading Mysql Driver!");  
+        }  
+        catch (Exception e) {  
+          System.out.print("Error loading Mysql Driver!");  
+          e.printStackTrace();  
+        }  
+  try {  
+      Connection connect = DriverManager.getConnection( "jdbc:mysql://localhost:3306/air","root","111111");  
+      //Statement steamed = connect.createStatement();
+      
+      String queryCheck = "SELECT * from air WHERE passengerID =?" ;
+      PreparedStatement st = connect.prepareStatement(queryCheck);
+      st.setString(1, searchID);
+      ResultSet rs = st.executeQuery(); // execute the query, and get a java resultset
+      // if this ID already exists, we quit
+      if(rs.absolute(1)) {
+          //connect.close();
+
+
+    	 found= true;
+
+          
+                
+          
+      }
+      
+
+      
+
+  
+  // } catch (ClassNotFoundException e) {  
+    // TODO Auto-generated catch block  
+   // System.out.println("An error has occurred:"+e.toString());  
+  //  e.printStackTrace();  
+      
+           
+
+  
+  // } catch (ClassNotFoundException e) {  
+    // TODO Auto-generated catch block  
+   // System.out.println("An error has occurred:"+e.toString());  
+  //  e.printStackTrace();  
+   }catch(SQLException e)  
+   {  
+	  // PrintStream out = System.out;
+       //out.println( "exception" );
+   }
+
+//.....................change ends............
+
+
+
+
+
+
+
+
+
+
+
+
+
     if (found)
     {
       System.out.println ("\n\n");
       System.out.println ("The following passenger exists: \n\n");
-      System.out.println (this.toString () + "\n");
+      System.out.println (this.toString () + "\n");   // what is 'this' this for??????????????????????????????????
 
       System.out.println ("Do you want to use this name and address to make a ");
       System.out.print ("reservation for this passenger (Y/N)? ");
@@ -420,7 +710,7 @@ class CFlightRecord implements java.io.Serializable
   private String        passengerID;  // ID of passenger (9 digits)
   private String        reservationID;  // reservationID of flight (6 uppercase)
   private String        flightNum;  // flight number (3 digits, right justified)
-  private Date        flightDate;  // date of flight
+  private java.util.Date        flightDate;  // date of flight
   private String        seatNum;  // seat number (3 digits + char, right justified)
   private char        mealType;  // special meal type
   private short        perceivedQuality;  // perceived meal quality (1 through 5)
@@ -434,7 +724,7 @@ class CFlightRecord implements java.io.Serializable
   public String  getPassengerID ()      { return passengerID; }
   public String  getReservationID ()    { return reservationID; }
   public String  getFlightNum ()      { return flightNum; }
-  public Date  getFlightDate ()      { return flightDate; }
+  public java.util.Date  getFlightDate ()      { return flightDate; }
   public String  getSeatNum ()        { return seatNum; }
   public char  getMealType ()        { return mealType; }
   public short  getPerceivedQuality ()    { return perceivedQuality; }
@@ -467,7 +757,7 @@ class CFlightRecord implements java.io.Serializable
         + mealLoaded + "\n";
   }
 
-  public void Copy (CFlightRecord tempFltRec)
+  /*public void Copy (CFlightRecord tempFltRec)
   //
   // this will make a copy of tempFltRec into the current object
   //
@@ -482,6 +772,7 @@ class CFlightRecord implements java.io.Serializable
     this.checkedIn = tempFltRec.getCheckedIn ();
     this.mealLoaded = tempFltRec.getMealLoaded ();
   }
+  */
 
   public void  getReservation ()
   //
@@ -555,7 +846,7 @@ class CFlightRecord implements java.io.Serializable
 
       try
       {
-        flightDate = flightDateFormat.parse (flightStrDate);
+        flightDate = flightDateFormat.parse(flightStrDate);
       }
       catch (ParseException pe)
       {
@@ -618,8 +909,17 @@ class CFlightRecord implements java.io.Serializable
     //
     // get passenger information and insert the passenger in the passenger file
     //
-    aPassenger.getDescription ();
-    aPassenger.insert ();
+  //  aPassenger.getDescription ();
+   // aPassenger.insert ();
+
+
+	
+	aPassenger.getDescription ();
+
+
+
+	// I have combined get description inside inser function in CPassenger class so no need to call insert()
+
 
     //
     // copy the passengerID from the passenger object to the flight record object
@@ -630,10 +930,14 @@ class CFlightRecord implements java.io.Serializable
     checkedIn = false;
     mealLoaded = false;
 
-    insert ();
+    insert ();  //this inser is for this class
     // insert the reservation into the reservation file
 
   } // getReservation
+
+
+
+
 
 
   public void checkInPassenger ()
@@ -667,7 +971,49 @@ class CFlightRecord implements java.io.Serializable
     if (alreadyExists () )
     {
       checkedIn = true;
-      insert ();
+      //insert (); //it will not be used here
+
+    //...................................................Chnged part SQL update starts.....................................
+
+
+	     try {  
+          Class.forName("com.mysql.jdbc.Driver");     // driver    
+          //Class.forName("org.gjt.mm.mysql.Driver");  
+         System.out.println("Success loading Mysql Driver!");  
+        }  
+        catch (Exception e) {  
+          System.out.print("Error loading Mysql Driver!");  
+          e.printStackTrace();  
+        }  
+	  try {  
+	      Connection connect = DriverManager.getConnection( "jdbc:mysql://localhost:3306/air","root","111111");  
+	       
+		 
+	       PreparedStatement Statement=connect.prepareStatement("UPDATE FlightRecord SET checkedIn=1  WHERE reservationID= ?");  
+	       //for(int i=0;i<num;i++)        //100 times loop to insert information.
+	 
+		    Statement.setString(1,reservationID);
+		    
+		    
+		    Statement.executeUpdate(); 
+		    //connect.commit();
+	   
+	  // } catch (ClassNotFoundException e) {  
+	    // TODO Auto-generated catch block  
+	   // System.out.println("An error has occurred:"+e.toString());  
+	  //  e.printStackTrace();  
+	   }catch(SQLException e)  
+	   {  
+	   }  
+
+	
+	
+//......................................change ends here...................................
+
+
+
+	
+	
 
       System.out.println ("\n\n\tThe passenger has been checked in.\n");
       System.out.println ("\tPlease check their identification.\n");
@@ -685,6 +1031,9 @@ class CFlightRecord implements java.io.Serializable
 
   } // checkInPassenger
 
+
+
+
   public boolean scanSpecialMeals ()
   //
   // scanSpecialMeals queries the user whether the meal was loaded and then updates the file.
@@ -693,13 +1042,16 @@ class CFlightRecord implements java.io.Serializable
   {
     boolean        dateOK = false;  // indicates if flight date is properly entered
     boolean        flightNumOK = false;  // indicates if flight number is valid
-    boolean        EOF = false;
+    boolean        seatNumOK = false;
+   //boolean        EOF = false;
     char          ch;    // holds user response to Y/N question
-    File          fileExists = new File ("fltRec.dat");
+    //File          fileExists = new File ("fltRec.dat");
                       // used to test if file exists
-    CFlightRecord tempFltRec;    // temporary object used for file copying
+    //CFlightRecord tempFltRec;    // temporary object used for file copying
+
+
     String flightStrDate;        // used to get a string representing a date
-    SimpleDateFormat flightDateFormat = new SimpleDateFormat ("mm/dd/yyyy");
+    SimpleDateFormat flightDateFormat = new SimpleDateFormat ("mm/dd/yyyy");  //asks for date
                       // used to parse a date
 
     AirGourmetUtilities.clearScreen ();
@@ -745,100 +1097,137 @@ class CFlightRecord implements java.io.Serializable
 
     AirGourmetUtilities.clearScreen ();
 
-    if (!fileExists.exists ())
-      return false;
-
-    try
-    {
-      ObjectInputStream in = new ObjectInputStream (new FileInputStream ("fltRec.dat"));
-      ObjectOutputStream out = new ObjectOutputStream (new FileOutputStream
-          ("tempF.dat"));
-
-      while (!EOF)
-      {
-        try
-        {
-          //
-          // copy the current flight record file to a temporary file
-          //
-          tempFltRec = (CFlightRecord)in.readObject ();
-          out.writeObject (tempFltRec);
-        } // try
-
-        catch (EOFException e)
-        {
-          EOF = true;
-        }
-
-      } // while
-
-      in.close ();
-      out.close ();
-    } // try
-
-    catch (Exception e)
-    {
-      e.printStackTrace (System.out);
-    }
-
-    EOF = false;
-
+    
     //
     // copy the temporary file to new flight record file
     // while inserting the passenger object in the proper location after
     // updating mealLoaded
     //
 
-    try
-    {
-      ObjectInputStream in = new ObjectInputStream (new FileInputStream ("tempF.dat"));
-      ObjectOutputStream out = new ObjectOutputStream (new FileOutputStream
-          ("fltRec.dat"));
+	//while(!EOF)
+    
+   // 	try
+	//{
+          //if ((flightDate.equals (tempFltRec.getFlightDate ()))
+            //  && (flightNum.toUpperCase ().compareTo (tempFltRec.
+              //  getFlightNum ().toUpperCase () ) == 0))
+          //{
+            //System.out.println ("\n\nPASSENGER: " + tempFltRec.getPassengerID ());
+            //S//ystem.out.println ("  SEAT: " + tempFltRec.getSeatNum ());
+            //System.out.println ("  MEAL TYPE: "
+              //  + mealTypeValues[tempFltRec.getMealType () - 'A']);
+            //System.out.print ("\n\nWas the meal for this passenger loaded (Y/N) ? ");
 
-      while (!EOF)
+            //ch = AirGourmetUtilities.getChar ();
+            //if (Character.toUpperCase (ch) == 'Y')
+              //tempFltRec.setMealLoaded (true);
+           // else
+             // tempFltRec.setMealLoaded (false);
+          //}
+          //out.writeObject (tempFltRec);
+
+        //} // try
+
+        //catch (EOFException e)
+        //{
+          //EOF = true;
+        //}
+
+      //} // while
+
+      //in.close ();
+      //out.close ();
+    //} // try
+
+    //catch (Exception e)
+    //{
+      //e.printStackTrace (System.out);
+    //}
+
+	
+    
+      System.out.print ("Enter the passenger id: 9 characters ");
+      passengerID = AirGourmetUtilities.readString ();
+
+       while (!seatNumOK)
+    {
+      System.out.print ("Enter the Seat NUMBER: ");
+      seatNum = AirGourmetUtilities.readString ();
+
+      if (checkSeatNum () )
+        seatNumOK = true;
+      else
       {
-        try
-        {
-          tempFltRec = (CFlightRecord)in.readObject ();
-
-          if ((flightDate.equals (tempFltRec.getFlightDate ()))
-              && (flightNum.toUpperCase ().compareTo (tempFltRec.
-                getFlightNum ().toUpperCase () ) == 0))
-          {
-            System.out.println ("\n\nPASSENGER: " + tempFltRec.getPassengerID ());
-            System.out.println ("  SEAT: " + tempFltRec.getSeatNum ());
-            System.out.println ("  MEAL TYPE: "
-                + mealTypeValues[tempFltRec.getMealType () - 'A']);
-            System.out.print ("\n\nWas the meal for this passenger loaded (Y/N) ? ");
-
-            ch = AirGourmetUtilities.getChar ();
-            if (Character.toUpperCase (ch) == 'Y')
-              tempFltRec.setMealLoaded (true);
-            else
-              tempFltRec.setMealLoaded (false);
-          }
-          out.writeObject (tempFltRec);
-
-        } // try
-
-        catch (EOFException e)
-        {
-          EOF = true;
-        }
-
-      } // while
-
-      in.close ();
-      out.close ();
-    } // try
-
-    catch (Exception e)
-    {
-      e.printStackTrace (System.out);
+        System.out.println ("\n\tA seat number 3 digit and followed by a upper case letter\n");
+        System.out.println ("\tPlease try again...\n\n");
+      }
     }
+
+	
+	System.out.print ("\n\nWas the meal for this passenger loaded (Y/N) ? ");
+	ch = AirGourmetUtilities.getChar ();
+	if (Character.toUpperCase (ch) == 'Y')
+	{
+		
+	
+		 //...................................................Chnged part SQL update starts.....................................
+
+
+		     try {  
+		  Class.forName("com.mysql.jdbc.Driver");     // driver    
+		  //Class.forName("org.gjt.mm.mysql.Driver");  
+		 System.out.println("Success loading Mysql Driver!");  
+		}  
+		catch (Exception e) {  
+		  System.out.print("Error loading Mysql Driver!");  
+		  e.printStackTrace();  
+		}  
+		  try {  
+		      Connection connect = DriverManager.getConnection( "jdbc:mysql://localhost:3306/air","root","111111");  
+		       
+			 
+		       PreparedStatement Statement=connect.prepareStatement("UPDATE FlightRecord SET mealLoaded=1  WHERE reservationID= ? and flightDate =? and flightNum =? and seatNum =? and passengerID =? ");  
+		       //for(int i=0;i<num;i++)        //100 times loop to insert information.
+		 
+			    Statement.setString(1,reservationID);
+			    java.sql.Date sqlDate = new java.sql.Date(flightDate.getTime());
+			    Statement.setDate(2,sqlDate);
+			    Statement.setString(3,flightNum);
+			    Statement.setString(4,seatNum);
+			    Statement.setString(5,passengerID);
+
+			    
+			    
+			    Statement.executeUpdate(); 
+			    //connect.commit();
+		   
+		  // } catch (ClassNotFoundException e) {  
+		    // TODO Auto-generated catch block  
+		   // System.out.println("An error has occurred:"+e.toString());  
+		  //  e.printStackTrace();  
+		   }catch(SQLException e)  
+		   {  
+		   }  
+
+	
+	
+		//......................................change ends here...................................
+
+
+
+
+	}// if
+
+	
+	
+    
+
+
 
     return true;
   } // scanSpecialMeals
+
+
 
   public void scanPostcard ()
   //
@@ -879,7 +1268,58 @@ class CFlightRecord implements java.io.Serializable
       tempString = AirGourmetUtilities.readString ();
       perceivedQuality = (short)Integer.parseInt (tempString);
 
-      insert ();
+      //insert ();
+
+
+		 //...................................................Chnged part SQL update starts.....................................
+
+
+		     try {  
+		  Class.forName("com.mysql.jdbc.Driver");     // driver    
+		  //Class.forName("org.gjt.mm.mysql.Driver");  
+		 System.out.println("Success loading Mysql Driver!");  
+		}  
+		catch (Exception e) {  
+		  System.out.print("Error loading Mysql Driver!");  
+		  e.printStackTrace();  
+		}  
+		  try {  
+		      Connection connect = DriverManager.getConnection( "jdbc:mysql://localhost:3306/air","root","111111");  
+		       
+			 
+		       PreparedStatement Statement=connect.prepareStatement("UPDATE FlightRecord SET perceivedQuality = ?  WHERE reservationID= ?");  
+		       //for(int i=0;i<num;i++)        //100 times loop to insert information.
+		 
+			   
+
+			    Statement.setInt(1,perceivedQuality);
+			    Statement.setString(2,reservationID);
+			   
+			    
+			    
+			    
+			    Statement.executeUpdate(); 
+			    //connect.commit();
+		   
+		  // } catch (ClassNotFoundException e) {  
+		    // TODO Auto-generated catch block  
+		   // System.out.println("An error has occurred:"+e.toString());  
+		  //  e.printStackTrace();  
+		   }catch(SQLException e)  
+		   {  
+		   }  
+
+	
+	
+		//......................................change ends here...................................
+
+
+
+
+
+
+
+
 
       System.out.println ("\n\n\tThe passenger record has been updated.\n");
 
@@ -896,108 +1336,82 @@ class CFlightRecord implements java.io.Serializable
 
   } // scanPostcard
 
+
+
+
+
   public void insert ()
   //
   // insert inserts a flight record object in the proper place
   //
   {
     boolean        found = false;  // indicates if object insertion point found
-    File          fileExists = new File ("fltRec.dat");
-                      // used to test if file exists
-    CFlightRecord      tempFltRec;  // temporary object used for file copying
-    boolean        EOF = false;
+   
 
-    try
-    {
-      ObjectOutputStream out = new ObjectOutputStream (new FileOutputStream
-          ("tempF.dat"));
+//.............................Changed part starts.............................................
 
-      if (fileExists.exists ())
-      {
-        ObjectInputStream in = new ObjectInputStream (new FileInputStream
-            ("fltRec.dat"));
 
-        while (!EOF)
-        {
-          try
-          {
-            // read/write temporary object from the passenger file
-            tempFltRec = (CFlightRecord)in.readObject ();
-            out.writeObject (tempFltRec);
-          }
-          catch (EOFException e)
-          {
-            EOF = true;
-          }
+	try {  
+		  Class.forName("com.mysql.jdbc.Driver");     // driver    
+		  //Class.forName("org.gjt.mm.mysql.Driver");  
+		 System.out.println("Success loading Mysql Driver!");  
+		}  
+		catch (Exception e) {  
+		  System.out.print("Error loading Mysql Driver!");  
+		  e.printStackTrace();  
+		}  
+	  try {  
+	      Connection connect = DriverManager.getConnection( "jdbc:mysql://localhost:3306/air","root","111111");  
+	       
+		 
+	       PreparedStatement Statement2=connect.prepareStatement("INSERT INTO FlightRecord (passengerID,reservationID,flightNum,flightDate,seatNum,mealType,perceivedQuality,checkedIn,mealLoaded) VALUES(?,?,?,?,?,?,?,?,?)");  
 
-        } // while (!EOF)
+	       //for(int i=0;i<num;i++)        //100 times loop to insert information.
+	 
+		    Statement2.setString(1,passengerID);
+		    Statement2.setString(2,reservationID);
+		    Statement2.setString(3,flightNum);
+		    java.sql.Date sqlDate = new java.sql.Date(flightDate.getTime());
+	 	    Statement2.setDate(4,sqlDate);
+		    Statement2.setString(5,seatNum);
+		    Statement2.setString(6,String.valueOf(mealType));
+		    Statement2.setInt(7,perceivedQuality);
+		    Statement2.setBoolean(8,checkedIn);
+		    Statement2.setBoolean(9,mealLoaded);
+		    
+		    Statement2.executeUpdate(); 
+		    //connect.commit();
+	   
+	  // } catch (ClassNotFoundException e) {  
+	    // TODO Auto-generated catch block  
+	   // System.out.println("An error has occurred:"+e.toString());  
+	  //  e.printStackTrace();  
+	   }catch(SQLException e)  
+	   {  
+	   }
 
-        in.close ();
-      } // if (fileExists.exists ())
-      else
-        out.writeObject (this);
 
-      out.close ();
-    } // try
 
-    catch (Exception e)
-    {
-      e.printStackTrace (System.out);
-    }
 
-    EOF = false;
 
-    try
-    {
-      ObjectInputStream in = new ObjectInputStream (new FileInputStream ("tempF.dat"));
-      ObjectOutputStream out = new ObjectOutputStream (new FileOutputStream
-          ("fltRec.dat"));
 
-      while (!EOF)
-      {
-        try
-        {
-          tempFltRec = (CFlightRecord)in.readObject ();
 
-          //
-          // copy the temporary file to new flight record file
-          // while inserting the flight record object in the proper location
-          //
-          if (reservationID.toLowerCase ().compareTo (tempFltRec.getReservationID
-              ().toLowerCase ()) == 0)
-          {
-            out.writeObject (this);
-            found = true;
-          }
-          else
-            out.writeObject (tempFltRec);
+       // ...............................change paert ends..................................
 
-        } // try
 
-        catch (EOFException e)
-        {
-          if (!found)
-            out.writeObject (this);
 
-          EOF = true;
-        }
 
-      } // while (!EOF)
 
-      in.close ();
-      out.close ();
-    } // try
 
-    catch (Exception e)
-    {
-      e.printStackTrace (System.out);
-    }
-
-  } // insert
+   } // insert
 
   //
   // private methods
   //
+
+
+
+
 
   private boolean  checkReservationID ()
   //
@@ -1029,6 +1443,8 @@ class CFlightRecord implements java.io.Serializable
     return valid;
 
   } // checkReservationID
+
+
 
   private boolean  checkFlightNum ()
   //
@@ -1107,67 +1523,101 @@ class CFlightRecord implements java.io.Serializable
 
   } // checkSeatNum
 
+
+
+
+
   private boolean alreadyExists ()
   //
   // alreadyExists determines if the reservationID of the current object already exists in the file
   //
   {
-    boolean        found = false;  // indicates if passenger already exists
-    boolean        EOF = false;
-    String          searchID;  // the passengerID for which to search
-    File          fileExists = new File ("fltRec.dat");
-                      // used to test if file exists
-    CFlightRecord tempFltRec;    // used to read in object from flight record file
 
-    if (!fileExists.exists ())
-      return false;
+
+    boolean        found = false;  // indicates if passenger already exists
+
+
+   // boolean        EOF = false;
+    
+	
+	
+	String          searchID;  // the passengerID for which to search
+
+
+
+    //File          fileExists = new File ("fltRec.dat");
+                      // used to test if file exists
+    //CFlightRecord tempFltRec;    // used to read in object from flight record file
+
+    //if (!fileExists.exists ())
+      //return false;
 
     searchID = reservationID;
 
-    try
-    {
-      ObjectInputStream in = new ObjectInputStream (new FileInputStream ("fltRec.dat"));
+   //...................Change begins............................
+     
+     try {  
+          Class.forName("com.mysql.jdbc.Driver");     // driver    
+          //Class.forName("org.gjt.mm.mysql.Driver");  
+         System.out.println("Success loading Mysql Driver!");  
+        }  
+        catch (Exception e) {  
+          System.out.print("Error loading Mysql Driver!");  
+          e.printStackTrace();  
+        }  
+  try {  
+      Connection connect = DriverManager.getConnection( "jdbc:mysql://localhost:3306/air","root","111111");  
+      //Statement steamed = connect.createStatement();
+      
+      String queryCheck = "SELECT * from FlightRecord WHERE reservationID =?" ;
+      PreparedStatement st = connect.prepareStatement(queryCheck);
+      st.setString(1, searchID);
+      ResultSet rs = st.executeQuery(); // execute the query, and get a java resultset
+      // if this ID already exists, we quit
+      if(rs.absolute(1)) {
+          //connect.close();
 
-      while (!EOF)
-      {
-        try
-        {
-          //
-          // determine if the passenger object already exists
-          //
-          tempFltRec = (CFlightRecord)in.readObject ();
 
-          //
-          // check if there is a match with the searchID
-          //
-          if (tempFltRec.getReservationID ().toLowerCase ().
-              compareTo (searchID.toLowerCase ()) == 0)
-          {
-            found = true;
-            this.Copy (tempFltRec);
-            break;
-          }
-        } // try
+    	 found= true;
 
-        catch (EOFException e)
-        {
-          EOF = true;
-        }
+          
+                
+          
+      }
+      
 
-      } // while
+      
 
-      in.close ();
-    } // try
+  
+  // } catch (ClassNotFoundException e) {  
+    // TODO Auto-generated catch block  
+   // System.out.println("An error has occurred:"+e.toString());  
+  //  e.printStackTrace();  
+      
+           
 
-    catch (Exception e)
-    {
-      e.printStackTrace (System.out);
-    }
+  
+  // } catch (ClassNotFoundException e) {  
+    // TODO Auto-generated catch block  
+   // System.out.println("An error has occurred:"+e.toString());  
+  //  e.printStackTrace();  
+   }catch(SQLException e)  
+   {  
+	  // PrintStream out = System.out;
+       //out.println( "exception" );
+   }
+
+//.....................change ends............
+
 
     reservationID = searchID;
     return found;
 
   } // alreadyExists
+
+
+
+
 
   private boolean seatReserved ()
   //
@@ -1175,28 +1625,41 @@ class CFlightRecord implements java.io.Serializable
   //
   {
     boolean        found = false;  // indicates if seat reserved
-    File          fileExists = new File ("fltRec.dat");
+
+
+
+    //File          fileExists = new File ("fltRec.dat");
                       // used to test if file exists
-    boolean        EOF = false;
+    //boolean        EOF = false;
+
+
+
+
+
     CFlightRecord tempFltRec;    // used to read in object from flight record file
 
-    if (!fileExists.exists ())
-      return false;
 
-    try
-    {
-      ObjectInputStream in = new ObjectInputStream (new FileInputStream ("fltRec.dat"));
 
-      while (!EOF)
-      {
-        try
-        {
+
+
+
+    //if (!fileExists.exists ())
+    //  return false;
+
+    //try
+    //{
+      //ObjectInputStream in = new ObjectInputStream (new FileInputStream ("fltRec.dat"));
+
+//      while (!EOF)
+//      {
+//        try
+//        {
           //
           // check if there is a match with the current seat
           //
-          tempFltRec = (CFlightRecord)in.readObject ();
+//          tempFltRec = (CFlightRecord)in.readObject ();
 
-          if ((flightNum.toUpperCase ().compareTo (tempFltRec.getFlightNum ()) == 0)
+  /*        if ((flightNum.toUpperCase ().compareTo (tempFltRec.getFlightNum ()) == 0)
               && (seatNum.toUpperCase ().compareTo (tempFltRec.
                   getSeatNum ()) == 0)
               && (tempFltRec.getFlightDate () == flightDate))
@@ -1220,13 +1683,84 @@ class CFlightRecord implements java.io.Serializable
     catch (Exception e)
     {
       e.printStackTrace (System.out);
-    }
+    }                                                            */
+
+
+
+
+
+  //...................Change begins............................
+     
+     try {  
+          Class.forName("com.mysql.jdbc.Driver");     // driver    
+          //Class.forName("org.gjt.mm.mysql.Driver");  
+         System.out.println("Success loading Mysql Driver!");  
+        }  
+        catch (Exception e) {  
+          System.out.print("Error loading Mysql Driver!");  
+          e.printStackTrace();  
+        }  
+  try {  
+      Connection connect = DriverManager.getConnection( "jdbc:mysql://localhost:3306/air","root","111111");  
+      //Statement steamed = connect.createStatement();
+      
+      String queryCheck = "SELECT * from FlightRecord WHERE seatNum =? and flightNum= ?" ;
+      PreparedStatement st = connect.prepareStatement(queryCheck);
+      st.setString(1, seatNum);
+      st.setString(2,flightNum);
+      ResultSet rs = st.executeQuery(); // execute the query, and get a java resultset
+      // if this ID already exists, we quit
+      if(rs.absolute(1)) {
+          //connect.close();
+
+
+    	 found= true;
+
+          
+                
+          
+      }
+      
+
+      
+
+  
+  // } catch (ClassNotFoundException e) {  
+    // TODO Auto-generated catch block  
+   // System.out.println("An error has occurred:"+e.toString());  
+  //  e.printStackTrace();  
+      
+           
+
+  
+  // } catch (ClassNotFoundException e) {  
+    // TODO Auto-generated catch block  
+   // System.out.println("An error has occurred:"+e.toString());  
+  //  e.printStackTrace();  
+   }catch(SQLException e)  
+   {  
+	  // PrintStream out = System.out;
+       //out.println( "exception" );
+   }
+
+//.....................change ends............
+
+
+
+
+
+
 
     return found;
+
+
 
   } // seatReserved
 
 } // class CFlightRecord
+
+
+
 
 
 class CReport
@@ -1235,8 +1769,8 @@ class CReport
   // data members
   //
 
-  protected Date      fromDate;  // fromDate and toDate represent the
-  protected Date      toDate;  // range of dates used in the report
+  protected java.util.Date      fromDate;  // fromDate and toDate represent the
+  protected java.util.Date      toDate;  // range of dates used in the report
   protected short      recsPerScreen;  // # of records in a report per screen
   protected boolean    printHeader;  // indicates if theHeader is always to be
                       // printed
@@ -1246,8 +1780,8 @@ class CReport
   // accessor methods
   //
 
-  public Date    getFromDate ()    { return fromDate; }
-  public Date    getToDate  ()    { return toDate; }
+  public java.util.Date    getFromDate ()    { return fromDate; }
+  public java.util.Date    getToDate  ()    { return toDate; }
 
   //
   // mutator methods
@@ -1364,12 +1898,14 @@ class CReport
   //
   {
     int          numRecs = 0;  // count of total flight records
-    boolean        EOF = false;
-    File          fileExists = new File ("fltRec.dat");
-                      // used to test if file exists
-    CFlightRecord tempFltRec;    // used to read in object from flight record file
 
-    if (fileExists.exists ())
+
+   // boolean        EOF = false;
+    //File          fileExists = new File ("fltRec.dat");
+                      // used to test if file exists
+    //CFlightRecord tempFltRec;    // used to read in object from flight record file
+
+    /*if (fileExists.exists ())
     {
       getQualifications ();
       AirGourmetUtilities.clearScreen ();
@@ -1377,24 +1913,28 @@ class CReport
       try
       {
         ObjectInputStream in = new ObjectInputStream (new FileInputStream
-            ("fltRec.dat"));
+            ("fltRec.dat"));      */
 
-        while (!EOF)
-        {
-          try
-          {
+        //while (!EOF)
+        //{
+
+
+         // try
+          //{
             //
             // determine if the passenger object already exists
             //
-            tempFltRec = (CFlightRecord)in.readObject ();
+            //tempFltRec = (CFlightRecord)in.readObject ();
 
             //
             // check if the flight date is within the given range
             // and that this the record qualifies for the report
             //
-            if (qualifiesForReport (tempFltRec))
-            {
-              if (printHeader)
+            //if (qualifiesForReport (tempFltRec))
+            //{
+              
+
+	     if (printHeader)
               {
                 //
                 // pause the screen after every recsPerScreen flight records
@@ -1421,29 +1961,21 @@ class CReport
               //
               // call the method to handle this record
               //
-              printRecord (tempFltRec);
+              //printRecord (tempFltRec);
 
-              numRecs++;
+              //numRecs++;
 
-            } // if (qualifiesForReport (tempFltRec))
+           // } // if (qualifiesForReport (tempFltRec))
 
-          } // try
+         // } // try
 
-          catch (EOFException e)
-          {
-          EOF = true;
-          }
+         
+       // } // while
 
-        } // while
+     // in.close ();
+      //} // try
 
-      in.close ();
-      } // try
-
-      catch (Exception e)
-      {
-      e.printStackTrace (System.out);
-      }
-
+   
       //
       // print the report trailer
       //
@@ -1456,7 +1988,7 @@ class CReport
         AirGourmetUtilities.pressEnter ();
       }
 
-    } // if (fileExists.exists ())
+   // } // if (fileExists.exists ())
 
   } // print
 
